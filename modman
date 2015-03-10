@@ -1,0 +1,10 @@
+app/code/community/Soczed/Less/                             app/code/community/Soczed/Less/
+app/design/adminhtml/default/default/layout/soczed/         app/design/adminhtml/default/default/layout/soczed/
+app/design/adminhtml/default/default/template/soczed/       app/design/adminhtml/default/default/template/soczed/
+app/etc/modules/Soczed_Less.xml                             app/etc/modules/Soczed_Less.xml
+app/locale/fr_FR/Soczed_Less.csv                            app/locale/fr_FR/Soczed_Less.csv
+app/locale/de_DE/Soczed_Less.csv                            app/locale/de_DE/Soczed_Less.csv
+lib/Soczed/                                                 lib/Soczed/
+skin/frontend/base/default/less/example.less                skin/frontend/base/default/less/example.less
+app/design/frontend/base/default/layout/soczed/less.xml     app/design/frontend/base/default/layout/soczed/less.xml
+
