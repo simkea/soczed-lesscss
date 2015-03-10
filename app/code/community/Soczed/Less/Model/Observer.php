@@ -107,6 +107,7 @@ class Soczed_Less_Model_Observer
             $globalVars    = $this->_getConfigHelper()->getGlobalVariables();
             
             // Cache by file path
+            /** @var  Soczed_Less_Model_Mysql4_File $filesCollection */
             $filesCollection = Mage::getModel('less/file')
                 ->getCollection()
                 ->load();
@@ -114,6 +115,7 @@ class Soczed_Less_Model_Observer
             $filesIds = array_flip($filesCollection->toOptionHash());
             
             foreach ($newItems as $key => $item) {
+
                 if (in_array($item['type'], array('js_css', 'skin_css'))) {
                     // CSS file
                     if (substr($item['name'], -5) == '.less') {
@@ -130,6 +132,7 @@ class Soczed_Less_Model_Observer
                             // Init file config
                             if (isset($filesIds[$baseFile])) {
                                 $isNewModel      = false;
+
                                 $model           = $filesCollection->getItemById($filesIds[$baseFile]);
                                 $oldCache        = $model->getCache();
                                 $forceRebuild    = (bool)$model->getForceRebuild();
@@ -169,13 +172,15 @@ class Soczed_Less_Model_Observer
                             
                             // Compile if needed (depends on cache and rebuild flag)
                             $oldCache = (is_array($oldCache) ? $oldCache : $lessFile);
-                            
+
+
+
                             try {
+                                $less = new lessc();
                                 $newCache = lessc::cexecute(
                                     $oldCache,
                                     $forceRebuild,
-                                    $variables,
-                                    $this->_getLessFunctions($item['name'])
+                                    $less
                                 );
                             } catch (Exception $e) {
                                 if ($this->_getConfigHelper()->getShowErrors()) {
