@@ -121,6 +121,13 @@
         </translate>
     </adminhtml>
     <frontend>
+        <layout>
+            <updates>
+                <less>
+                    <file>soczed/less.xml</file>
+                </less>
+            </updates>
+        </layout>
         <events>
             <controller_action_layout_render_before>
                 <observers>
