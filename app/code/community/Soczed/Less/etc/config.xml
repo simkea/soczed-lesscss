@@ -119,6 +119,19 @@
                 </Soczed_Less>
             </modules>
         </translate>
+
+        <events>
+            <controller_action_layout_render_before>
+                <observers>
+                    <less>
+                        <type>singleton</type>
+                        <class>less/observer</class>
+                        <method>beforeLayoutRender</method>
+                    </less>
+                </observers>
+            </controller_action_layout_render_before>
+        </events>
+
     </adminhtml>
     <frontend>
         <layout>
