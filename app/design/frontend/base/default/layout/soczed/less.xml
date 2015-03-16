@@ -18,15 +18,15 @@
     <default>
         <reference name="head">
 
-            <action method="addItem">
-                <type>skin_css</type>
-                <name>less/example.less</name>
-            </action>
+            <!--<action method="addItem">-->
+                <!--<type>skin_css</type>-->
+                <!--<name>less/example.less</name>-->
+            <!--</action>-->
 
-            <action method="addItem">
-                <type>skin_css</type>
-                <name>less/example.css</name>
-            </action>
+            <!--<action method="addItem">-->
+                <!--<type>skin_css</type>-->
+                <!--<name>less/example.css</name>-->
+            <!--</action>-->
 
         </reference>
     </default>
