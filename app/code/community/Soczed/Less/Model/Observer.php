@@ -13,8 +13,7 @@
  * @license    http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-set_include_path(get_include_path().PS.Mage::getBaseDir('lib').DS.'Soczed'.DS.'less');
-require_once('lessc.inc.php');
+require_once(Mage::getBaseDir('lib').DS.'Soczed'.DS.'less'.DS.'Less.php');
 
 class Soczed_Less_Model_Observer
 {
@@ -127,14 +126,13 @@ class Soczed_Less_Model_Observer
                         }
                         $baseFile = ltrim(str_replace(Mage::getBaseDir(), '', $lessFile), DS);
                         $cssFile  = substr($lessFile, 0, -5) . '.css';
-                        
+
+
                         try {
                             // Init file config
                             if (isset($filesIds[$baseFile])) {
                                 $isNewModel      = false;
-
                                 $model           = $filesCollection->getItemById($filesIds[$baseFile]);
-                                $oldCache        = $model->getCache();
                                 $forceRebuild    = (bool)$model->getForceRebuild();
                                 $customVars      = $model->getCustomVariables();
                                 $useGlobalVars   = (bool)$model->getUseGlobalVariables();
@@ -142,7 +140,6 @@ class Soczed_Less_Model_Observer
                             } else {
                                 $isNewModel      = true;
                                 $model           = null;
-                                $oldCache        = null;
                                 $forceRebuild    = false;
                                 $customVars      = array();
                                 $useGlobalVars   = true;
@@ -169,19 +166,28 @@ class Soczed_Less_Model_Observer
                                 $variables = $customVars;
                             }
                             $variables = array_merge($variables, $this->_getLessVariables($item['name']));
-                            
-                            // Compile if needed (depends on cache and rebuild flag)
-                            $oldCache = (is_array($oldCache) ? $oldCache : $lessFile);
-
-
 
                             try {
-                                $less = new lessc();
-                                $newCache = lessc::cexecute(
-                                    $oldCache,
-                                    $forceRebuild,
-                                    $less
-                                );
+                                $parser = new Less_Parser();
+                                if(filemtime($lessFile)>filemtime($cssFile) OR $forceRebuild) {
+                                    $parser->parseFile($lessFile,Mage::getDesign()->getSkinBaseUrl().DS.'less' );
+                                    if (!is_string($result = $this->_checkWritableFile($cssFile))) {
+                                        if(is_array($variables) AND count($variables)>1) {
+                                            $parser->ModifyVars( $variables );
+                                        }
+
+                                        file_put_contents($cssFile, $parser->getCss());
+                                    } else {
+                                        Mage::throwException($result);
+                                    }
+
+                                    if ($isNewModel) {
+                                        $model = Mage::getModel('less/file')->setPath($baseFile);
+                                    }
+                                    $model->setData('force_rebuild',$forceRebuild)->save();
+
+                                }
+
                             } catch (Exception $e) {
                                 if ($this->_getConfigHelper()->getShowErrors()) {
                                     if (!is_string($result = $this->_checkWritableFile($cssFile))) {
@@ -191,19 +197,6 @@ class Soczed_Less_Model_Observer
                                 throw $e;
                             }
                             
-                            if (!is_array($oldCache) || ($newCache['updated'] > $oldCache['updated'])) {
-                                if (!is_string($result = $this->_checkWritableFile($cssFile))) {
-                                    file_put_contents($cssFile, $newCache['compiled']);
-                                } else {
-                                    Mage::throwException($result);
-                                }
-                                if ($isNewModel) {
-                                    $model = Mage::getModel('less/file')->setPath($baseFile);
-                                }
-                                // Won't be further needed and takes most of the place
-                                unset($newCache['compiled']); 
-                                $model->setCache($newCache)->save();
-                            }
                         } catch (Exception $e) {
                             Mage::logException($e);
                         }

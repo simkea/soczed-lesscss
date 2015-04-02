@@ -62,7 +62,7 @@ class Soczed_Less_Adminhtml_FileController
         
         $this->_initAction()
             ->_title($file->getPath())
-            ->_addBreadcrumb($file->getPath())
+            ->_addBreadcrumb(Mage::helper('less')->__('Manage Less Files'),$file->getPath())
             ->renderLayout();
     }
     
