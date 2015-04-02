@@ -145,12 +145,7 @@ class Soczed_Less_Block_Adminhtml_File_Grid
             'url'     => $this->getUrl('*/*/massDelete', array('_current' => true)),
             'confirm' => $this->__('Are you sure?'),
         ));
-        $this->getMassactionBlock()->addItem('mass_reset', array(
-            'label'   => $this->__('Reset Cache'),
-            'url'     => $this->getUrl('*/*/massReset', array('_current' => true)),
-            'confirm' => $this->__('Are you sure?'),
-        ));
-        
+
         return $this;
     }
 }
