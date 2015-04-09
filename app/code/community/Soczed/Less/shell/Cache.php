@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__) . '/../../../../../../shell/abstract.php';
+require_once getcwd() . '/shell/abstract.php';
 
 /**
  * Magento Compiler Shell Script
