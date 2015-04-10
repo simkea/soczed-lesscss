@@ -168,9 +168,15 @@ class Soczed_Less_Model_Observer
                             $variables = array_merge($variables, $this->_getLessVariables($item['name']));
 
                             try {
-                                $parser = new Less_Parser();
-                                if(filemtime($lessFile)>filemtime($cssFile) OR $forceRebuild OR $isNewModel) {
-                                    Mage::log($cssFile);
+                                $mapFile = Mage::getDesign()->getSkinBaseDir().DS.$item['name'].'.map';
+                                $options = array(
+                                    'sourceMap'         => true,
+                                    'sourceMapWriteTo'  => $mapFile,
+                                    'sourceMapURL'      => Mage::getDesign()->getSkinBaseUrl().DS.$item['name'].'.map',
+                                );
+
+                                $parser = new Less_Parser( $options );
+                                if( $forceRebuild OR $isNewModel ) {
                                     $parser->parseFile($lessFile,Mage::getDesign()->getSkinBaseUrl().DS.'less' );
                                     if (!is_string($result = $this->_checkWritableFile($cssFile))) {
                                         if(is_array($variables) AND count($variables)>1) {
