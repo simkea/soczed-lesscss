@@ -170,7 +170,7 @@ class Soczed_Less_Model_Observer
                             try {
                                 $mapFile = Mage::getDesign()->getSkinBaseDir().DS.$item['name'].'.map';
                                 $options = array(
-                                    'sourceMap'         => true,
+                                    'sourceMap'         => !Mage::app()->getStore()->isAdmin(),
                                     'sourceMapWriteTo'  => $mapFile,
                                     'sourceMapURL'      => Mage::getDesign()->getSkinBaseUrl().DS.$item['name'].'.map',
                                 );
