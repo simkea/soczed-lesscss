@@ -97,14 +97,13 @@ class Soczed_Less_Model_Observer
         }
         
         $layout = Mage::getSingleton('core/layout');
-        
-        if (($head = $layout->getBlock('head'))
-            && ($head instanceof Mage_Page_Block_Html_Head)) {
-            $baseJsDir     = Mage::getBaseDir() . DS . 'js' . DS;
+
+
+        if ( $head = $layout->getBlock('head') ) {
             $designPackage = Mage::getDesign();
             $newItems      = $head->getData('items');
             $globalVars    = $this->_getConfigHelper()->getGlobalVariables();
-            
+
             // Cache by file path
             /** @var  Soczed_Less_Model_Mysql4_File $filesCollection */
             $filesCollection = Mage::getModel('less/file')
@@ -115,18 +114,28 @@ class Soczed_Less_Model_Observer
             
             foreach ($newItems as $key => $item) {
 
-                if (in_array($item['type'], array('js_css', 'skin_css'))) {
+                if (in_array($item['type'], array('skin_css'))) {
                     // CSS file
                     if (substr($item['name'], -5) == '.less') {
-                        // LESS file
-                        if ($item['type'] == 'js_css') {
-                            $lessFile = $baseJsDir . $item['name'];
-                        } else {
-                            $lessFile = $designPackage->getFilename($item['name'], array('_type' => 'skin'));
-                        }
-                        $baseFile = ltrim(str_replace(Mage::getBaseDir(), '', $lessFile), DS);
+
+                        $parts = explode(DS, $item['name']);
+                        $singleFilename = array_pop($parts);
+                        $lessFile = $singleFilename;
+//                        $subPath = ltrim(str_replace( DS . $singleFilename, '', $item['name']), DS);
                         $cssFile  = substr($lessFile, 0, -5) . '.css';
 
+
+
+                        $baseFilePath = $designPackage->getFilename($item['name'], array('_type' => 'skin'));
+                        $baseFile = ltrim(str_replace(Mage::getBaseDir(), '', $baseFilePath), DS);
+
+                        $parts = explode(DS, $baseFilePath);
+                        $baseFilePathPath = array_pop($parts);
+                        $onlyUrlPath = str_replace( DS. $baseFilePathPath, '', $baseFile). DS;
+                        $onlyPath = str_replace( DS. $baseFilePathPath, '', $baseFilePath). DS;
+
+                        $mapFilePath  = substr($baseFilePath, 0, -5) . '.map';
+                        $mapFile  = substr($baseFile, 0, -5) . '.map';
 
                         try {
                             // Init file config
@@ -168,22 +177,24 @@ class Soczed_Less_Model_Observer
                             $variables = array_merge($variables, $this->_getLessVariables($item['name']));
 
                             try {
-                                $mapFile = Mage::getDesign()->getSkinBaseDir().DS.$item['name'].'.map';
+
+
                                 $options = array(
                                     'sourceMap'         => !Mage::app()->getStore()->isAdmin(),
-                                    'sourceMapWriteTo'  => $mapFile,
-                                    'sourceMapURL'      => Mage::getDesign()->getSkinBaseUrl().DS.$item['name'].'.map',
+                                    'sourceMapWriteTo'  => $mapFilePath,
+                                    'sourceMapURL'      => DS.$mapFile,
                                 );
 
                                 $parser = new Less_Parser( $options );
+                                $parser->SetImportDirs( array($onlyPath => DS.$onlyUrlPath) );
                                 if( $forceRebuild OR $isNewModel ) {
-                                    $parser->parseFile($lessFile,Mage::getDesign()->getSkinBaseUrl().DS.'less' );
+
+                                    $parser->parseFile($baseFilePath, DS. $onlyUrlPath );
                                     if (!is_string($result = $this->_checkWritableFile($cssFile))) {
                                         if(is_array($variables) AND count($variables)>1) {
                                             $parser->ModifyVars( $variables );
                                         }
-
-                                        file_put_contents($cssFile, $parser->getCss());
+                                        file_put_contents($onlyPath.$cssFile, $parser->getCss());
                                     } else {
                                         Mage::throwException($result);
                                     }
